@@ -36,8 +36,8 @@
      params[:timestamp] ||= Time.now.to_i
      params[:access_token] ||= @auth_token
      query_params = params.collect do |key,val|
-       "#{CGI.escape(key.to_s)}=#{CGI.escape(val.to_s)}"
-     end.sort * '&'
+       "#{CGI.escape(key.to_s)}=#{CGI.escape(params[key].to_s)}"
+     end * '&'
      puts "signing #{query_params}"
      params.merge(signature: OpenSSL::HMAC.hexdigest("sha1", @hmac_secret, query_params))
   end

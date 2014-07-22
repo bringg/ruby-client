@@ -1,8 +1,27 @@
- require 'net/http'
- require 'OpenSSL'
- require 'json'
- require 'date'
- require 'cgi' unless defined?(CGI) && defined?(CGI::escape)
+require 'net/http'
+require 'OpenSSL'
+require 'json'
+require 'date'
+require 'cgi' unless defined?(CGI) && defined?(CGI::escape)
+
+class Object
+  def to_param
+    to_s
+  end
+ def to_query(key)
+    "#{CGI.escape(key.to_param)}=#{CGI.escape(to_param.to_s)}"
+  end
+end
+
+class Hash
+  def to_query(namespace=nil)
+    collect do |key, value|
+      unless (value.is_a?(Hash) || value.is_a?(Array)) && value.empty?
+        value.to_query(namespace ? "#{namespace}[#{key}]" : key)
+      end
+    end.compact * '&'
+  end
+end
 
  class BringgClient
    def initialize(options = {})
@@ -51,9 +70,8 @@
   def sign_request(params)
      params[:timestamp] ||= Time.now.to_i
      params[:access_token] ||= @auth_token
-     query_params = params.collect do |key,val|
-       "#{CGI.escape(key.to_s)}=#{CGI.escape(params[key].to_s)}"
-     end * '&'
+     query_params = params.to_query
+
      puts "signing #{query_params} with #{@hmac_secret}"
      params.merge(signature: OpenSSL::HMAC.hexdigest("sha1", @hmac_secret, query_params))
   end

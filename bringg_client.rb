@@ -53,12 +53,23 @@ end
     Net::HTTP.post_form(uri, sign_request(params))
   end
 
+  def merchant_configuration(company_id, company_configuration)
+    uri = URI("#{@default_url}/partner_api/companies/#{company_id}/company_configuration/")
+    params = company_configuration
+
+    req = Net::HTTP::Patch.new(uri, initheader = {'Content-Type' =>'application/json'})
+    req.body = sign_request(params).to_json
+    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+      http.request(req)
+    end
+  end
+
   def delete_task(id)
     params = sign_request({})
     query_params = params.collect do |key,val|
       "#{CGI.escape(key.to_s)}=#{CGI.escape(params[key].to_s)}"
     end * '&'
-    uri = URI("#{@default_url}/partner_api/tasks/#{id}?#{query_params}")
+    uri = URI("#{@default_url}/companies/tasks/#{id}?#{query_params}")
 
     Net::HTTP.start(uri.host, uri.port) do |http|
         request = Net::HTTP::Delete.new uri

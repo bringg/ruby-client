@@ -1,11 +1,11 @@
 require './bringg_client.rb'
 require 'pry'
 
-bc = BringgClient.new({url: "http://localhost:3000",
-                       auth_token: "oixxBF4ft6H55SbxcDsG",
-+                      hmac_secret: "SBFgk3zrfDSW4tg2vK1r"})
+bc = BringgClient.new({url: "https://developer-api.bringg.com/",
+                       auth_token: "<YOUR AUTH TOKEN>",
+                      hmac_secret: "<YOUR SECTET>"})
 
-merchant_id = <MERCHANT_ID>
+merchant_id = <YOUR COMPANY ID>
 
 res = bc.create_customer({:scheduled_at=>DateTime.now.to_s,
 					:note=>"{:order=>329}",
@@ -54,8 +54,21 @@ merchant_configuration_res = bc.merchant_configuration(merchant_id, {
      :auto_dispatch => true }
   })
 
-binding.pry
+userRes = bc.create_user({
+    :name => "Jhon Smith",
+    :email => "jhon@smith.com",
+    :phone => "+972545556666",
+    :company_id => merchant_id,
+    :password => "password"
+  })
+user = JSON.parse(userRes.body)
+
+update_user_location = bc.update_user_location(user["id"], {:location_data =>  {:coords => { lat: 32.5434, lng:34.3423432}}})
+
+puts user
+puts update_user_location
+
 puts merchant_configuration_res
 puts res
-# way_point = JSON.parse(res.body)["way_point"]
-# puts "received way_point: #{way_point}"
+way_point = JSON.parse(res.body)["way_point"]
+puts "received way_point: #{way_point}"

@@ -47,6 +47,24 @@ end
     end
   end
 
+  def create_user(user_details)
+    uri = URI("#{@default_url}/partner_api/users")
+    req = Net::HTTP::Post.new(uri, initheader = {'Content-Type' =>'application/json'})
+    req.body = sign_request(user_details).to_json
+    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+      http.request(req)
+    end
+  end
+
+  def update_user_location(user_id, user_location)
+    uri = URI("#{@default_url}/partner_api/users/#{user_id}/update_user_location")
+    req = Net::HTTP::Post.new(uri, initheader = {'Content-Type' =>'application/json'})
+    req.body = sign_request(user_location).to_json
+    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+      http.request(req)
+    end
+  end
+
   def add_waypoint(task_id, way_point_details)
     uri = URI("#{@default_url}/partner_api/tasks/#{task_id}/way_points/")
     params = way_point_details
